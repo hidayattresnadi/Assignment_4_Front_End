@@ -2,61 +2,27 @@ import { useState } from "react";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import HomePage from "../components/pages/homepage";
 import Layout from "../components/templates/layout";
-import { successSwal } from "../helper";
 import BookFormPage from "../components/pages/bookFormPage";
 import BooksPage from "../components/pages/booksPage";
 import MembersPage from "../components/pages/membersPage";
 import MemberFormPage from "../components/pages/memberFormPage";
 import BookDetailPage from "../components/pages/bookDetailPage";
 import MemberDetailPage from "../components/pages/memberDetailPage";
+import BorrowBookForm from "../components/modules/borrowBookForm";
 
 // Initial data and functions for book management
 const columnsTableBooks = ["Title", "Author", "Category", "Publication Year", "ISBN", "Available", "Edit", "Delete", "Detail"];
 const columnsTableMembers = ["Id", "Full Name", "Email", "Gender", "Phone", "Address", "Edit", "Delete", "Detail"];
 
 const AppRouter = () => {
-
     const [books, setBooks] = useState();
     const [members, setMembers] = useState();
     const [categories, setCategories] = useState();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingBook, setEditingBook] = useState(null);
-    const [selectedMemberId, setSelectedMemberId] = useState(null);
     const [editingMember, setEditingMember] = useState(null);
     const [errors,setErrors]= useState(null);
-
-    const updateMember = (member) => {
-        const newErrors = {};
-
-        if (!member.fullName) {
-            newErrors.fullName = 'Name is required'
-        }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(member.email)) {
-            newErrors.email = 'Invalid email format';
-        }
-        if (!/^\+62\d{9,13}$/.test(member.phone)) {
-            newErrors.phone = 'Phone number must start with +62 and contain 9-13 digits';
-        }
-        if (member.address.length < 200) {
-            newErrors.address = 'address minimal characters should be 200'
-        }
-        if (!member.gender) {
-            newErrors.gender = 'gender is required'
-        }
-        setErrors(newErrors);
-        
-        if (Object.keys(newErrors).length === 0) {
-            const updatedMembers = [...members];
-            member.id = selectedMemberId
-            const indexMember = members.findIndex((member) => member.id === selectedMemberId);
-            updatedMembers[indexMember] = member;
-            setMembers(updatedMembers);
-            successSwal('Member Edited successfully');
-            setSelectedMemberId(null);
-            setEditingMember(null);
-        }
-        return newErrors;
-    };
+    const [refresh, setRefresh] = useState(false);
 
     const router = createBrowserRouter([
         {
@@ -85,6 +51,8 @@ const AppRouter = () => {
                             books={books}
                             setBooks={setBooks}
                             columns={columnsTableBooks}
+                            refresh={refresh}
+                            setRefresh={setRefresh}
                         />
                     )
                 },
@@ -134,6 +102,8 @@ const AppRouter = () => {
                             members={members}
                             setMembers={setMembers}
                             columns={columnsTableMembers}
+                            refresh={refresh}
+                            setRefresh={setRefresh}
                         />
                     )
                 },
@@ -142,7 +112,6 @@ const AppRouter = () => {
                     element: (
                         <MemberFormPage
                             setErrors={setErrors}
-                            updateMember={updateMember}
                             editingMember={editingMember}
                             isFormOpen={isFormOpen}
                             setIsFormOpen={setIsFormOpen}
@@ -154,7 +123,6 @@ const AppRouter = () => {
                     path: "/members/edit/:id",
                     element: (
                         <MemberFormPage
-                            updateMember={updateMember}
                             setEditingMember={setEditingMember}
                             editingMember={editingMember}
                             isFormOpen={isFormOpen}
@@ -173,6 +141,17 @@ const AppRouter = () => {
                         />
                     ),
                 },
+                {
+                    path: "/borrow",
+                    element: (
+                        <BorrowBookForm
+                        members={members}
+                        setMembers={setMembers}
+                        books={books}
+                        setBooks={setBooks}
+                        />
+                    ),
+                }
             ]
         }
     ]);

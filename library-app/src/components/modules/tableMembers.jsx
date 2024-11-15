@@ -1,30 +1,10 @@
-import Swal from 'sweetalert2';
 import TableHeader from '../widgets/tableHeader';
 import TableMemberRow from '../widgets/tableMemberRow';
 import { useNavigate } from 'react-router-dom';
-import { successSwal } from '../../helper';
-import axios from 'axios';
 
 
-const TableMembers = ({ members, columns }) => {
+const TableMembers = ({ members, columns, handleDeleteUser }) => {
     const navigate = useNavigate();
-
-    const handleDeleteUser = (id) => {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                await axios.delete(`http://localhost:5184/User/${id}`)
-                successSwal('User Deleted successfully');
-            }
-        });
-    };
     
     return (
         <>

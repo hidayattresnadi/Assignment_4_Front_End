@@ -4,7 +4,7 @@ import FormLayout from '../templates/FormLayout';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import LoadingSpinner from '../elements/loading';
-import { successSwal, validateInputBook } from '../../helper';
+import { failedSwal, successSwal, validateInputBook } from '../../helper';
 
 function BookFormPage({ setBooks,setErrors, errors, setCategories, setEditingBook, editingBook, categories, isFormOpen, setIsFormOpen }) {
     const { id } = useParams();
@@ -12,7 +12,8 @@ function BookFormPage({ setBooks,setErrors, errors, setCategories, setEditingBoo
     const [ErrorStatus, setErrorStatus] = useState();
 
     const addBook = async (book) => {
-        const listErrors = await validateInputBook(book);
+        try {
+            const listErrors = await validateInputBook(book);
         setErrors(listErrors);
 
         if (Object.keys(listErrors).length === 0) {
@@ -21,10 +22,18 @@ function BookFormPage({ setBooks,setErrors, errors, setCategories, setEditingBoo
             successSwal('Book Added successfully');
         }
         return listErrors;
+            
+        } 
+        catch (error) {
+            setErrors(error.response.data)
+            failedSwal(error.response.data)
+            return error.response.data
+        }
     };
 
     const updateBook = async (book) => {
-        const listErrors = await validateInputBook(book, editingBook.isbn);
+        try {
+            const listErrors = await validateInputBook(book, editingBook.isbn);
         setErrors(listErrors);
 
         if (Object.keys(listErrors).length === 0) {
@@ -33,7 +42,14 @@ function BookFormPage({ setBooks,setErrors, errors, setCategories, setEditingBoo
             successSwal('Book Edited successfully');
             setEditingBook(null);
         }
-        return listErrors;
+        return listErrors;   
+        } 
+        catch (error) {
+            setErrors(error.response.data)
+            failedSwal(error.response.data)
+            return error.response.data
+        }
+        
     };
 
     useEffect(() => {
